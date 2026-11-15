@@ -1,11 +1,11 @@
-# Flask Tasks API
+# Flask SQLite Tasks API
 
-A REST API built with Python and Flask that retrieves tasks and allows adding new tasks via JSON POST requests.
+A REST API built with Python, Flask, and Flask-SQLAlchemy (ORM) that stores tasks persistently in a SQLite database.
 
 ## Endpoints
 - `GET /` - Returns a welcome message.
-- `GET /api/tasks` - Returns a JSON list of all tasks.
-- `POST /api/tasks` - Accepts a JSON body (e.g., `{"title": "New Task"}`) to create and return a new task.
+- `GET /api/tasks` - Retrieves a JSON list of all tasks from the SQLite database.
+- `POST /api/tasks` - Accepts a JSON body (e.g., `{"title": "New Task"}`) to create and persistently store a new task.
 
 ## How to Run
 1. Install dependencies: `pip install -r requirements.txt`
