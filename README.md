@@ -1,13 +1,16 @@
-# Flask SQLite Tasks API
+# Authenticated Flask Task Manager API
 
-A REST API built with Python, Flask, and Flask-SQLAlchemy (ORM) that stores tasks persistently in a SQLite database.
+A secure REST API built with Python, Flask, Flask-Login, and SQLite (Flask-SQLAlchemy) featuring user registration, password hashing, session authentication, and user-specific task management.
 
 ## Endpoints
-- `GET /` - Returns a welcome message.
-- `GET /api/tasks` - Retrieves a JSON list of all tasks from the SQLite database.
-- `POST /api/tasks` - Accepts a JSON body (e.g., `{"title": "New Task"}`) to create and persistently store a new task.
+- `GET /` - Returns API overview and available routes.
+- `POST /api/register` - Register a new account with JSON `{"username": "alice", "password": "secretpassword"}`.
+- `POST /api/login` - Log in with JSON `{"username": "alice", "password": "secretpassword"}`.
+- `POST /api/logout` - Log out of the current session (requires login).
+- `GET /api/tasks` - Retrieve all tasks for the logged-in user (requires login).
+- `POST /api/tasks` - Create a new task for the logged-in user with JSON `{"title": "Complete project"}` (requires login).
 
 ## How to Run
 1. Install dependencies: `pip install -r requirements.txt`
-2. Run the server: `python app.py`
-3. Test `GET` at `http://127.0.0` or send a `POST` request with JSON payload `{"title": "Buy groceries"}`.
+2. Run the application: `python app.py`
+3. Access the API at `http://127.0.0`
