@@ -1,4 +1,6 @@
 import os
+import re
+import secrets
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
@@ -13,8 +15,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# Security & SQLite Database Configuration
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or secrets.token_hex(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks_auth.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -87,13 +88,18 @@ def home():
 
 @app.route('/api/register', methods=['POST'])
 def register():
-    """Register a new user with a hashed password."""
+    """Register a new user with username validation and a hashed password."""
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({"error": "Username and password are required"}), 400
 
     username = str(data['username']).strip()
     password = str(data['password'])
+
+    if not re.match(r'^[A-Za-z0-9_]{3,30}$', username):
+        return jsonify({
+            "error": "Username must be 3-30 characters and contain only letters, numbers, or underscores"
+        }), 400
 
     if len(password) < 6:
         return jsonify({"error": "Password must be at least 6 characters long"}), 400
@@ -116,7 +122,9 @@ def login():
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({"error": "Username and password are required"}), 400
 
-    user = User.query.filter_by(username=str(data['username']).strip()).first()
+    username = str(data['username']).strip()
+    user = User.query.filter_by(username=username).first()
+
     if not user or not user.check_password(str(data['password'])):
         return jsonify({"error": "Invalid username or password"}), 401
 
@@ -137,7 +145,7 @@ def logout():
 def get_tasks():
     """Retrieve all tasks belonging to the currently logged-in user."""
     tasks = Task.query.filter_by(user_id=current_user.id).all()
-    return jsonify({"tasks": [task.to_dict() for task in tasks]})
+    return jsonify({"tasks": [task.to_dict() for task in tasks]}), 200
 
 
 @app.route('/api/tasks', methods=['POST'])
